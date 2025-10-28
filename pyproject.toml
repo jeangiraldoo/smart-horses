@@ -1,0 +1,19 @@
+[project]
+name = "smart_horses"
+version = "0.0.1"
+description = "AI game project with minimax tree and heuristics"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+	"pygame>=2.6.1"
+]
+readme = "README.md"
+authors = [
+	{name = "Mónica Cortés"},
+	{name = "Jhoimar Silva Torres"},
+	{name = "Wendy Yepez Aguayo"},
+	{name = "Jean Giraldo"}
+]
+
+[build-system]
+requires = ["setuptools>=65.5.0", "wheel"]
+build-backend = "setuptools.build_meta"
