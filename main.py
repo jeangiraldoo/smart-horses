@@ -4,20 +4,24 @@ from board import draw_map, generate_random_matrix, MATRIX_CELL_SIZE, MATRIX_SIZ
 from colours import COLOURS
 from button import Button
 
-GAME_NAME = "Smart Horses"
-
 pygame.init()
+
+GAME_NAME = "Smart Horses"
+GAME_MENU_TITLE_FONT = pygame.font.Font(None, 70)
+current_menu_title_colour = "RED_WOOD"  # Toggle for animating the title
+
 pygame.display.set_caption(GAME_NAME)
 
 SCREEN_DIMENSIONS = MATRIX_CELL_SIZE * MATRIX_SIZE
 screen = pygame.display.set_mode((SCREEN_DIMENSIONS, SCREEN_DIMENSIONS))
 
 
-BUTTONS_X_POSITION = SCREEN_DIMENSIONS / 2
+SCREEN_MIDDLE_X_POS = SCREEN_DIMENSIONS / 2
+
 BUTTONS = [
-    Button("Beginner", (BUTTONS_X_POSITION, 220)),
-    Button("Amateur", (BUTTONS_X_POSITION, 300)),
-    Button("Expert", (BUTTONS_X_POSITION, 380)),
+    Button("Beginner", (SCREEN_MIDDLE_X_POS, 270)),
+    Button("Amateur", (SCREEN_MIDDLE_X_POS, 350)),
+    Button("Expert", (SCREEN_MIDDLE_X_POS, 430)),
 ]
 
 
@@ -34,9 +38,23 @@ def start_game(screen, difficulty):
         pygame.display.flip()
 
 
+def display_game_title():
+    global current_menu_title_colour
+    current_menu_title_colour = (
+        "RED_WOOD" if not current_menu_title_colour == "RED_WOOD" else "WOOD"
+    )
+    text_surface = GAME_MENU_TITLE_FONT.render(
+        GAME_NAME, True, COLOURS.get(current_menu_title_colour)
+    )
+    text_rect = text_surface.get_rect(center=(SCREEN_MIDDLE_X_POS, 160))
+    screen.blit(text_surface, text_rect)
+
+
 def main():
     while True:
         screen.fill(COLOURS.get("BEIGE"))
+        display_game_title()
+
         mouse_pos = pygame.mouse.get_pos()
 
         # 2 loops iterate over the buttons to handle presses and looks separately
