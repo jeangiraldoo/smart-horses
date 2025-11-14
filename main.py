@@ -1,6 +1,13 @@
 import pygame
 import sys
-from board import draw_map, generate_random_matrix, MATRIX_CELL_SIZE, MATRIX_SIZE
+from board import (
+    draw_map,
+    generate_random_matrix,
+    MATRIX_CELL_SIZE,
+    MATRIX_SIZE,
+    get_cell_points,
+    draw_score_panel,
+)
 from colours import COLOURS
 from button import Button
 
@@ -12,11 +19,15 @@ current_menu_title_colour = "RED_WOOD"  # Toggle for animating the title
 
 pygame.display.set_caption(GAME_NAME)
 
-SCREEN_DIMENSIONS = MATRIX_CELL_SIZE * MATRIX_SIZE
-screen = pygame.display.set_mode((SCREEN_DIMENSIONS, SCREEN_DIMENSIONS))
+MAP_DIMENSIONS = MATRIX_CELL_SIZE * MATRIX_SIZE
+SIDEBAR_WIDTH = 350
+SCREEN_WIDTH = MAP_DIMENSIONS + SIDEBAR_WIDTH
+SCREEN_HEIGHT = MAP_DIMENSIONS
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
-SCREEN_MIDDLE_X_POS = SCREEN_DIMENSIONS / 2
+SCREEN_MIDDLE_X_POS = SCREEN_WIDTH / 2
 
 BUTTONS = [
     Button("Beginner", (SCREEN_MIDDLE_X_POS, 270)),
@@ -24,18 +35,45 @@ BUTTONS = [
     Button("Expert", (SCREEN_MIDDLE_X_POS, 430)),
 ]
 
+font = pygame.font.SysFont("Arial", 24)
+
+
+scores = {"ai": 0, "player": 0}
+
 
 def start_game(screen, difficulty):
+    global scores
     random_matrix = generate_random_matrix()
+    scores["ai"], scores["player"] = 0, 0
+
     running = True
+    clock = pygame.time.Clock()
+
+    # Posiciones iniciales
+    white_knight_pos = [1, 1]  # IA
+    black_knight_pos = [3, 2]  # Jugador
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        scores["ai"] += get_cell_points(random_matrix, white_knight_pos)
+        scores["player"] += get_cell_points(random_matrix, black_knight_pos)
+
         draw_map(screen, random_matrix)
+
+        draw_score_panel(
+            screen,
+            font,
+            scores,
+            MAP_DIMENSIONS,
+            SIDEBAR_WIDTH,
+        )
+
         pygame.display.flip()
+        clock.tick(2)  # Slow speed for better visualization
 
 
 def display_game_title():
