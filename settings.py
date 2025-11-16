@@ -1,11 +1,26 @@
 import pygame
-from button import Button
+
+pygame.init()
+GAME_NAME = "Smart Horses"
+GAME_MENU_TITLE_FONT = pygame.font.Font(None, 70)
+PANEL_INFO_FONT = pygame.font.SysFont("Arial", 24)
+pygame.display.set_caption(GAME_NAME)
+
+
+COLOURS = {
+    "BEIGE": (255, 255, 204),
+    "WOOD": (179, 45, 0),
+    "RED_WOOD": (255, 64, 0),
+    "BLACK": (0, 0, 0),
+}
+
 
 MATRIX_SIZE = 8
 MATRIX_CELL_SIZE = 90
 
 IMAGE_DIMENSIONS = 60
 IMAGE_SCALE = (IMAGE_DIMENSIONS, IMAGE_DIMENSIONS)
+
 
 CELLS = {
     # Empty
@@ -57,18 +72,24 @@ CELLS = {
 
 MATRIX_ELEMENTS = []
 MATRIX_ELEMENTS.extend(CELLS.keys())
-
 POSSIBLE_POSITIONS = [(x, y) for x in range(MATRIX_SIZE) for y in range(MATRIX_SIZE)]
 
-
-
 GAME_NAME = "Smart Horses"
-CURRENT_MENU_TITLE_COLOUR = "RED_WOOD"  # Toggle for animating the title
+SIDEBAR_WIDTH = 350
+SCREEN_WIDTH = MATRIX_CELL_SIZE * MATRIX_SIZE + SIDEBAR_WIDTH
+SCREEN_HEIGHT = MATRIX_CELL_SIZE * MATRIX_SIZE 
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption(GAME_NAME)
+
+SCREEN_MIDDLE_X_POS = SCREEN_WIDTH / 2
+SCREEN_MIDDLE_Y_POS = SCREEN_HEIGHT / 2
 
 
-SCREEN_DIMENSIONS = MATRIX_CELL_SIZE * MATRIX_SIZE
-SCREEN_MIDDLE_X_POS = SCREEN_DIMENSIONS / 2
 
-BEGGIN_DEPTH = 2
-AMATEUR_DEPTH = 4
-EXPERT_DEPTH = 6
+
+
+
+
+
+
