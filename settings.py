@@ -2,18 +2,20 @@ import pygame
 
 pygame.init()
 GAME_NAME = "Smart Horses"
-GAME_MENU_TITLE_FONT = pygame.font.Font(None, 70)
+TITLE_FONT = pygame.font.Font(None, 70)
+SUBTITLE_FONT = pygame.font.Font(None, 40)
 PANEL_INFO_FONT = pygame.font.SysFont("Arial", 24)
 pygame.display.set_caption(GAME_NAME)
 
-
 COLOURS = {
+    "BLACK": (0, 0, 0),
     "BEIGE": (255, 255, 204),
     "WOOD": (179, 45, 0),
     "RED_WOOD": (255, 64, 0),
     "BLACK": (0, 0, 0),
+    "GOLD": (218, 227, 66),
+    "GREEN": (102, 204, 0),
 }
-
 
 MATRIX_SIZE = 8
 MATRIX_CELL_SIZE = 90
@@ -21,52 +23,22 @@ MATRIX_CELL_SIZE = 90
 IMAGE_DIMENSIONS = 60
 IMAGE_SCALE = (IMAGE_DIMENSIONS, IMAGE_DIMENSIONS)
 
+WHITE_CELL = pygame.transform.scale(pygame.image.load("assets/white_cell.png"), IMAGE_SCALE)
+
+BLACK_CELL = pygame.transform.scale(pygame.image.load("assets/black_cell.png"), IMAGE_SCALE)
 
 CELLS = {
-    # Empty
-    0: pygame.transform.scale(pygame.image.load("assets/empty.png"), IMAGE_SCALE),
     # Destroyer
     997: pygame.transform.scale(
         pygame.image.load("assets/destroyed.png"), IMAGE_SCALE
     ),
     # White knight
     999: pygame.transform.scale(
-        pygame.image.load("assets/knight/white.png"), IMAGE_SCALE
+        pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
     ),
     # Black knight
     998: pygame.transform.scale(
-        pygame.image.load("assets/knight/black.png"), IMAGE_SCALE
-    ),
-    -10: pygame.transform.scale(
-        pygame.image.load("assets/points/negative/10.png"), IMAGE_SCALE
-    ),
-    # Cells with points
-    -5: pygame.transform.scale(
-        pygame.image.load("assets/points/negative/5.png"), IMAGE_SCALE
-    ),
-    -4: pygame.transform.scale(
-        pygame.image.load("assets/points/negative/4.png"), IMAGE_SCALE
-    ),
-    -3: pygame.transform.scale(
-        pygame.image.load("assets/points/negative/3.png"), IMAGE_SCALE
-    ),
-    -1: pygame.transform.scale(
-        pygame.image.load("assets/points/negative/1.png"), IMAGE_SCALE
-    ),
-    1: pygame.transform.scale(
-        pygame.image.load("assets/points/positive/1.png"), IMAGE_SCALE
-    ),
-    3: pygame.transform.scale(
-        pygame.image.load("assets/points/positive/3.png"), IMAGE_SCALE
-    ),
-    4: pygame.transform.scale(
-        pygame.image.load("assets/points/positive/4.png"), IMAGE_SCALE
-    ),
-    5: pygame.transform.scale(
-        pygame.image.load("assets/points/positive/5.png"), IMAGE_SCALE
-    ),
-    10: pygame.transform.scale(
-        pygame.image.load("assets/points/positive/10.png"), IMAGE_SCALE
+        pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
     ),
 }
 
@@ -84,12 +56,3 @@ pygame.display.set_caption(GAME_NAME)
 
 SCREEN_MIDDLE_X_POS = SCREEN_WIDTH / 2
 SCREEN_MIDDLE_Y_POS = SCREEN_HEIGHT / 2
-
-
-
-
-
-
-
-
-
