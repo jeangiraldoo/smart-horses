@@ -125,7 +125,7 @@ class Game:
                     return (x, y)
         return None
 
-    def horse_possibilities(self):
+    def calculate_player_valid_moves(self):
         valid_moves = []
         horse_x, horse_y = self.turn.get_position()
 
@@ -140,7 +140,7 @@ class Game:
     def move_horse(self, new_x, new_y):
         horse_pos = self.turn.get_position()
 
-        if (new_x, new_y) in self.horse_possibilities():
+        if (new_x, new_y) in self.calculate_player_valid_moves():
             self.board[horse_pos[1]][horse_pos[0]] = 997
             self.turn.set_score(self.turn.get_score() + self.board[new_y][new_x])
             self.turn.set_position(new_x, new_y)
@@ -155,7 +155,7 @@ class Game:
 
     # MINIMAX
     def minimax(self, depth, is_maximizing):
-        options = self.horse_possibilities()
+        options = self.calculate_player_valid_moves()
         return options[0]
 
     def play_the_ia(self):
@@ -181,7 +181,7 @@ class Game:
 
     # GAME OVER
     def apply_penalty_if_needed(self):
-        if not self.horse_possibilities():
+        if not self.calculate_player_valid_moves():
             self.turn.set_score(self.turn.get_score() - 4)
             self.refesh_panel(f"{self.turn.get_name()} -4 point")
             return True

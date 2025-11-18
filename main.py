@@ -189,7 +189,7 @@ class GUI:
             if not should_continue_playing:
                 return
 
-            self.draw_map(self.game.horse_possibilities())
+            self.draw_map(self.game.calculate_player_valid_moves())
             clock.tick(75)
 
     def run(self):
@@ -208,7 +208,7 @@ class GUI:
                             if button.is_hovered(self.mouse_pos):
                                 self.mode = "PLAYING"
                                 self.game.set_difficulty(button.text)
-                                self.draw_map(self.game.horse_possibilities())
+                                self.draw_map(self.game.calculate_player_valid_moves())
                                 self.ui_loop()
 
                     elif self.mode == "WINNER":
