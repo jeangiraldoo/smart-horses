@@ -1,6 +1,7 @@
 import random
 import pygame
 import sys
+from enum import Enum
 
 from settings import *
 from colours import COLOURS
@@ -33,12 +34,23 @@ CELLS = {
 
 
 class Horse:
+    class AvailableMovesInL(Enum):
+        ONE_RIGHT_TWO_UP = (1, -2)
+        TWO_RIGHT_ONE_UP = (2, -1)
+        TWO_RIGHT_ONE_DOWN = (2, 1)
+        ONE_RIGHT_TWO_DOWN = (1, 2)
+        ONE_LEFT_TWO_DOWN = (-1, 2)
+        TWO_LEFT_ONE_DOWN = (-2, 1)
+        TWO_LEFT_ONE_UP = (-2, -1)
+        ONE_LEFT_TWO_UP = (-1, -2)
+
     def __init__(self, x, y, value, name):
         self.x = x
         self.y = y
         self.value = value
         self.score = 0
         self.name = name
+        self.LEGAL_MOVES = [val.value for val in self.AvailableMovesInL]
 
     def get_position(self):
         return (self.x, self.y)
@@ -117,18 +129,7 @@ class Game:
         valid_moves = []
         horse_x, horse_y = self.turn.get_position()
 
-        directions = [
-            ("L arriba derecha", -2, 1),  # Two up, one right
-            ("L derecha arriba", -1, 2),  # One up, two right
-            ("L derecha abajo", 1, 2),  # One down, two right
-            ("L abajo derecha", 2, 1),  # Two down, one right
-            ("L abajo izquierda", 2, -1),  # Two down, one left
-            ("L izquierda abajo", 1, -2),  # One down, two left
-            ("L izquierda arriba", -1, -2),  # One up, two left
-            ("L arriba izquierda", -2, -1),  # Two up, one left
-        ]
-
-        for label, y, x in directions:
+        for x, y in self.turn.LEGAL_MOVES:
             new_x, new_y = horse_x + x, horse_y + y
             if 0 <= new_x < MATRIX_SIZE and 0 <= new_y < MATRIX_SIZE:
                 if self.board[new_y][new_x] not in [997, 998, 999]:
