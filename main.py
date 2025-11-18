@@ -9,6 +9,7 @@ from game import Game
 # pygame.init()
 TITLE_FONT = pygame.font.Font(None, 70)
 SUBTITLE_FONT = pygame.font.Font(None, 40)
+GAME_MENU_TITLE_FONT = pygame.font.Font(None, 70)
 # PANEL_INFO_FONT = pygame.font.SysFont("Arial", 24)
 GAME_NAME = "Smart Horses"
 pygame.display.set_caption(GAME_NAME)
@@ -54,6 +55,7 @@ class GUI:
             Button("Amateur", (SCREEN_MIDDLE_X_POS, 400)),
             Button("Expert", (SCREEN_MIDDLE_X_POS, 500)),
         ]
+        self.current_menu_title_colour = "RED_WOOD"  # Toggle for animating the title
         self.reset_button = Button("Play Again", (SCREEN_MIDDLE_X_POS, 400))
 
         self.mouse_pos = pygame.mouse.get_pos()
@@ -64,15 +66,30 @@ class GUI:
         text_rect = text_surface.get_rect(center=pos)
         screen.blit(text_surface, text_rect)
 
-    def _draw_centered_text(self, text, x, y, font=TITLE_FONT):
-        surface = font.render(text, True, COLOURS.get("BLACK"))
+    def _draw_centered_text(
+        self, text, x, y, font=TITLE_FONT, colour=COLOURS.get("BLACK")
+    ):
+        surface = font.render(text, True, colour)
         rect = surface.get_rect(center=(x, y))
         screen.blit(surface, rect)
 
     def display_game_title(self):
-        self._draw_centered_text(GAME_NAME, SCREEN_MIDDLE_X_POS, 160, font=TITLE_FONT)
+        self.current_menu_title_colour = (
+            "RED_WOOD" if not self.current_menu_title_colour == "RED_WOOD" else "WOOD"
+        )
+
         self._draw_centered_text(
-            "Choose your difficulty:", SCREEN_MIDDLE_X_POS, 210, font=SUBTITLE_FONT
+            GAME_NAME,
+            SCREEN_MIDDLE_X_POS,
+            160,
+            font=GAME_MENU_TITLE_FONT,
+            colour=COLOURS.get(self.current_menu_title_colour),
+        )
+        self._draw_centered_text(
+            "Choose your difficulty:",
+            SCREEN_MIDDLE_X_POS,
+            210,
+            font=GAME_MENU_TITLE_FONT,
         )
 
         for button in self.BUTTONS:
