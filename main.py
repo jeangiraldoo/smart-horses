@@ -144,7 +144,7 @@ class GUI:
                     )
 
                 if (
-                    cell == self.game.turn.value
+                    cell == self.game.current_player.value
                 ):  # feedback for the horse whose turn it is
                     pygame.draw.ellipse(
                         screen, COLOURS["GOLD"], rect.inflate(10, 10), 6

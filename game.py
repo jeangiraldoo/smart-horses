@@ -92,7 +92,7 @@ class Game:
         # Horses
         self.ai_horse = Horse(*self.find_horse_positions(999), 999, "WHITE")
         self.player_horse = Horse(*self.find_horse_positions(998), 998, "BLACK")
-        self.turn = self.ai_horse
+        self.current_player = self.ai_horse
 
         # Essentials
         self.alert = ""
@@ -117,7 +117,7 @@ class Game:
     # MOVEMENT
     def find_horse_positions(self, horse_find=""):
         if not horse_find:
-            horse_find = self.turn.value
+            horse_find = self.current_player.value
 
         for y in range(MATRIX_SIZE):
             for x in range(MATRIX_SIZE):
@@ -127,9 +127,9 @@ class Game:
 
     def calculate_player_valid_moves(self):
         valid_moves = []
-        horse_x, horse_y = self.turn.get_position()
+        horse_x, horse_y = self.current_player.get_position()
 
-        for x, y in self.turn.LEGAL_MOVES:
+        for x, y in self.current_player.LEGAL_MOVES:
             new_x, new_y = horse_x + x, horse_y + y
             if 0 <= new_x < MATRIX_SIZE and 0 <= new_y < MATRIX_SIZE:
                 if self.board[new_y][new_x] not in [997, 998, 999]:
@@ -138,15 +138,15 @@ class Game:
         return valid_moves
 
     def move_horse(self, new_x, new_y):
-        horse_pos = self.turn.get_position()
+        horse_pos = self.current_player.get_position()
 
         if (new_x, new_y) in self.calculate_player_valid_moves():
             self.board[horse_pos[1]][horse_pos[0]] = 997
-            self.turn.set_score(self.turn.get_score() + self.board[new_y][new_x])
-            self.turn.set_position(new_x, new_y)
-            self.board[new_y][new_x] = self.turn.get_value()
-            self.turn = (
-                self.player_horse if self.turn == self.ai_horse else self.ai_horse
+            self.current_player.set_score(self.current_player.get_score() + self.board[new_y][new_x])
+            self.current_player.set_position(new_x, new_y)
+            self.board[new_y][new_x] = self.current_player.get_value()
+            self.current_player = (
+                self.player_horse if self.current_player == self.ai_horse else self.ai_horse
             )
             self.alert = ""
 
@@ -182,8 +182,8 @@ class Game:
     # GAME OVER
     def apply_penalty_if_needed(self):
         if not self.calculate_player_valid_moves():
-            self.turn.set_score(self.turn.get_score() - 4)
-            self.refesh_panel(f"{self.turn.get_name()} -4 point")
+            self.current_player.set_score(self.current_player.get_score() - 4)
+            self.refesh_panel(f"{self.current_player.get_name()} -4 point")
             return True
         return False
 
@@ -250,7 +250,7 @@ class Game:
         self.screen.blit(status_text, (panel_x + 20, 230))
 
         turn_text = PANEL_INFO_FONT.render(
-            f"Es turno de {self.turn.get_name()}", True, (0, 128, 0)
+            f"Es turno de {self.current_player.get_name()}", True, (0, 128, 0)
         )
         self.screen.blit(turn_text, (panel_x + 20, 260))
 
@@ -264,7 +264,7 @@ class Game:
         if self.check_game_over():
             return False
 
-        if self.turn == self.ai_horse:
+        if self.current_player == self.ai_horse:
             self.play_the_ia()
 
         for event in pygame.event.get():
@@ -293,7 +293,7 @@ class Game:
         return f"""
         Game
             difficulty={self.difficulty}
-            turn={self.turn.get_name()}
+            turn={self.current_player.get_name()}
             white_horse={self.ai_horse}
             black_horse={self.player_horse}
         Board:
