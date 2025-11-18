@@ -221,66 +221,6 @@ class Game:
             return True
         return False
 
-    # DRAW AND UPDATE THE SCREEN
-    def draw_map(self):
-        avalibe_moves = self.horse_possibilities()
-        for y, row in enumerate[list[int]](self.board):
-            for x, cell in enumerate[int](row):
-                rect = pygame.Rect(
-                    x * MATRIX_CELL_SIZE,
-                    y * MATRIX_CELL_SIZE,
-                    MATRIX_CELL_SIZE,
-                    MATRIX_CELL_SIZE,
-                )
-                image = CELLS.get(cell, CELLS.get(0))
-
-                # First draw the board
-                self.screen.blit(
-                    pygame.transform.scale(
-                        WHITE_CELL if (x + y) % 2 == 0 else BLACK_CELL,
-                        (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE),
-                    ),
-                    rect.topleft,
-                )
-
-                # Draw the assets
-                if image:
-                    self.screen.blit(
-                        pygame.transform.scale(
-                            image, (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE)
-                        ),
-                        rect.topleft,
-                    )
-
-                if (x, y) in avalibe_moves:  # feedback for valid moves
-                    color = COLOURS[
-                        "GOLD"
-                    ]  # COLOURS["GOLD"] if cell == 0 else COLOURS["BLUE"] # if you want point cells to give a different feedback
-                    pygame.draw.rect(self.screen, color, rect)
-
-                if isinstance(cell, int) and cell not in [
-                    997,
-                    999,
-                    998,
-                    0,
-                ]:  # draw the points
-                    self.draw_text_on_board(
-                        str(cell),
-                        rect.center,
-                        (0, 0, 0) if (x + y) % 2 == 0 else (255, 255, 255),
-                    )
-
-                if cell == self.turn.value:  # feedback for the horse whose turn it is
-                    pygame.draw.ellipse(
-                        self.screen, COLOURS["GOLD"], rect.inflate(10, 10), 6
-                    )
-
-    def draw_text_on_board(self, text, pos, color=(2, 2, 2)):
-        font = pygame.font.SysFont(None, 40)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(center=pos)
-        self.screen.blit(text_surface, text_rect)
-
     def refesh_panel(self, alert=""):
         self.alert = alert
         self.draw_score_panel()
@@ -328,37 +268,33 @@ class Game:
         alert_test = PANEL_INFO_FONT.render(f"Alert: {self.alert}", True, (255, 0, 0))
         self.screen.blit(alert_test, (panel_x + 20, 300))
 
-    def start_game(self):
-        clock = pygame.time.Clock()
-        self.draw_map()
+    def play_turn(self):
         self.draw_score_panel()
         pygame.display.flip()
 
-        while True:
-            if self.check_game_over():
-                return
+        if self.check_game_over():
+            return False
 
-            if self.turn == self.ai_horse:
-                self.play_the_ia()
+        if self.turn == self.ai_horse:
+            self.play_the_ia()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    casilla = pygame.mouse.get_pos()
-                    board_x, board_y = (
-                        casilla[0] // MATRIX_CELL_SIZE,
-                        casilla[1] // MATRIX_CELL_SIZE,
-                    )
-                    if board_x < MATRIX_SIZE and board_y < MATRIX_SIZE:
-                        self.move_horse(board_x, board_y)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                casilla = pygame.mouse.get_pos()
+                board_x, board_y = (
+                    casilla[0] // MATRIX_CELL_SIZE,
+                    casilla[1] // MATRIX_CELL_SIZE,
+                )
+                if board_x < MATRIX_SIZE and board_y < MATRIX_SIZE:
+                    self.move_horse(board_x, board_y)
 
-            self.draw_map()
-            self.draw_score_panel()
-            pygame.display.flip()
-            clock.tick(75)
+        self.draw_score_panel()
+        pygame.display.flip()
+        return True
 
     def set_difficulty(self, difficulty):
         self.difficulty = difficulty
