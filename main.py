@@ -102,59 +102,59 @@ class GUI:
             button.toggle_colour_on_hover(self.mouse_pos)
             button.draw(screen)
 
-    def draw_map(self, avalibe_moves):
+    def _highlight_cell(self, rect):
+        color = COLOURS["GOLD"]
+        pygame.draw.rect(screen, color, rect)
+
+    def _draw_image_on_cell(self, cell_rect, image):
+        screen.blit(
+            pygame.transform.scale(image, (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE)),
+            cell_rect.topleft,
+        )
+
+    def _highlight_current_player(self, cell_rect):
+        pygame.draw.ellipse(screen, COLOURS["GOLD"], cell_rect.inflate(10, 10), 6)
+
+    def _draw_point_on_cell(self, cell_rect, point_value, x, y):
+        self.draw_text_on_board(
+            str(point_value),
+            cell_rect.center,
+            (0, 0, 0) if (x + y) % 2 == 0 else (255, 255, 255),
+        )
+
+    def draw_map(self, available_moves):
         for y, row in enumerate[list[int]](self.game.board):
             for x, cell in enumerate[int](row):
-                rect = pygame.Rect(
+                cell_rect = pygame.Rect(
                     x * MATRIX_CELL_SIZE,
                     y * MATRIX_CELL_SIZE,
                     MATRIX_CELL_SIZE,
                     MATRIX_CELL_SIZE,
                 )
-                image = CELLS.get(cell, CELLS.get(0))
 
-                # First draw the board
                 screen.blit(
                     pygame.transform.scale(
                         WHITE_CELL if (x + y) % 2 == 0 else BLACK_CELL,
                         (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE),
                     ),
-                    rect.topleft,
+                    cell_rect.topleft,
                 )
 
-                # Draw the assets
-                if image:
-                    screen.blit(
-                        pygame.transform.scale(
-                            image, (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE)
-                        ),
-                        rect.topleft,
-                    )
+                if (x, y) in available_moves:
+                    self._highlight_cell(cell_rect)
+                else:
+                    if image := CELLS.get(cell, CELLS.get(0)):
+                        self._draw_image_on_cell(cell_rect, image)
 
-                if (x, y) in avalibe_moves:  # feedback for valid moves
-                    color = COLOURS[
-                        "GOLD"
-                    ]  # COLOURS["GOLD"] if cell == 0 else COLOURS["BLUE"] # if you want point cells to give a different feedback
-                    pygame.draw.rect(screen, color, rect)
-
-                if isinstance(cell, int) and cell not in [
+                if cell == self.game.current_player.value:
+                    self._highlight_current_player(cell_rect)
+                elif isinstance(cell, int) and cell not in [
                     997,
                     999,
                     998,
                     0,
-                ]:  # draw the points
-                    self.draw_text_on_board(
-                        str(cell),
-                        rect.center,
-                        (0, 0, 0) if (x + y) % 2 == 0 else (255, 255, 255),
-                    )
-
-                if (
-                    cell == self.game.current_player.value
-                ):  # feedback for the horse whose turn it is
-                    pygame.draw.ellipse(
-                        screen, COLOURS["GOLD"], rect.inflate(10, 10), 6
-                    )
+                ]:
+                    self._draw_point_on_cell(cell_rect, cell, x, y)
 
     def display_winner_screen(self):
         screen.fill(COLOURS.get("BEIGE"))
