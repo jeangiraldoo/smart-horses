@@ -66,8 +66,16 @@ class Horse:
 class Game:
     def __init__(self, screen):
         self.screen = screen
+        self.POSSIBLE_POINTS = [-1, -3, -4, -5, -10, 1, 3, 4, 5, 10]
         self.difficulty = ""
-        self.board = self.generate_grid()
+
+        possible_board_elements = []
+        possible_board_elements.extend(CELLS.keys())
+        possible_board_elements.extend(self.POSSIBLE_POINTS)
+
+        self.POSSIBLE_BOARD_ELEMENTS = possible_board_elements
+
+        self.board = self.generate_random_matrix()
 
         # Horses
         self.ai_horse = Horse(*self.find_horse_positions(999), 999, "WHITE")
@@ -78,31 +86,21 @@ class Game:
         self.alert = ""
         self.winner = ""
 
-    # Initialization
-    def generate_grid(self):
-        # Create an empty 8x8 board
-        grid = [[0 for _ in range(8)] for _ in range(8)]
+    def generate_random_matrix(self):
+        POSSIBLE_POSITIONS = [
+            (x, y) for x in range(MATRIX_SIZE) for y in range(MATRIX_SIZE)
+        ]
 
-        # Generate random positions for the 10 point cells (from -10 to 10)
-        points = [-1, -3, -4, -5, -10, 1, 3, 4, 5, 10]
-        random.shuffle(points)
+        chosen_positions = random.sample(
+            POSSIBLE_POSITIONS, len(self.POSSIBLE_BOARD_ELEMENTS)
+        )
 
-        # Place the point cells on the board
-        for point in points:
-            while True:
-                x, y = random.randint(0, 7), random.randint(0, 7)
-                if grid[x][y] == 0:
-                    grid[x][y] = point
-                    break
+        board = [[0 for _ in range(MATRIX_SIZE)] for _ in range(MATRIX_SIZE)]
 
-        # Generate random positions for the AI and player horses
-        for horse in [999, 998]:
-            while True:
-                x, y = random.randint(0, 7), random.randint(0, 7)
-                if grid[x][y] == 0:
-                    grid[x][y] = horse
-                    break
-        return grid
+        for i, (x, y) in enumerate(chosen_positions):
+            board[x][y] = self.POSSIBLE_BOARD_ELEMENTS[i]
+
+        return board
 
     # MOVEMENT
     def find_horse_positions(self, horse_find=""):
