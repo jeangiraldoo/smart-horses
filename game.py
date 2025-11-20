@@ -89,7 +89,6 @@ class Game:
 
         self.board = self.generate_random_matrix()
 
-        # Horses
         self.ai_horse = Horse(*self.find_horse_positions(999), 999, "WHITE")
         self.player_horse = Horse(*self.find_horse_positions(998), 998, "BLACK")
         self.current_player = self.ai_horse
@@ -97,6 +96,13 @@ class Game:
         # Essentials
         self.alert = ""
         self.winner = ""
+        self.loser: None | Horse = None
+        self.ended_in_draw = False
+
+    def reset_game(self):
+        self.winner = None
+        self.loser = None
+        self.ended_in_draw = False
 
     def generate_random_matrix(self):
         POSSIBLE_POSITIONS = [
@@ -142,11 +148,15 @@ class Game:
 
         if (new_x, new_y) in self.calculate_player_valid_moves():
             self.board[horse_pos[1]][horse_pos[0]] = 997
-            self.current_player.set_score(self.current_player.get_score() + self.board[new_y][new_x])
+            self.current_player.set_score(
+                self.current_player.get_score() + self.board[new_y][new_x]
+            )
             self.current_player.set_position(new_x, new_y)
             self.board[new_y][new_x] = self.current_player.get_value()
             self.current_player = (
-                self.player_horse if self.current_player == self.ai_horse else self.ai_horse
+                self.player_horse
+                if self.current_player == self.ai_horse
+                else self.ai_horse
             )
             self.alert = ""
 
@@ -191,15 +201,17 @@ class Game:
         ai_score = self.ai_horse.get_score()
         player_score = self.player_horse.get_score()
 
-        if ai_score > player_score:
-            self.winner = self.ai_horse
-            texto = "Caballo Blanco (IA) gana"
-        elif ai_score < player_score:
-            self.winner = self.player_horse
-            texto = "Caballo Negro (Jugador) gana"
-        else:
-            self.winner = "Draw"
+        if ai_score == player_score:
+            self.ended_in_draw = True
             texto = "Empate"
+        elif ai_score > player_score:
+            self.winner = self.ai_horse
+            self.loser = self.player_horse
+            texto = "Caballo Blanco (IA) gana"
+        else:
+            self.winner = self.player_horse
+            self.loser = self.ai_horse
+            texto = "Caballo Negro (Jugador) gana"
 
         self.refesh_panel(texto)
 

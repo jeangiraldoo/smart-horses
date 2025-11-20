@@ -156,37 +156,32 @@ class GUI:
 
     def display_winner_screen(self):
         screen.fill(COLOURS.get("BEIGE"))
-        # Caso: Empate
-        if isinstance(self.game.winner, str):
-            winner_text = "It's a Draw!"
-            detail_text = ""
-        else:
-            loser = (
-                self.game.ai_horse
-                if self.game.winner == self.game.player_horse
-                else self.game.player_horse
-            )
-            winner_text = f"{self.game.winner.get_name()} wins!"
-            detail_text = f"with {self.game.winner.get_score()} points vs {loser.get_score()} of {loser.get_name()} horses"
+        winner_text = (
+            "It's a draw!"
+            if self.game.ended_in_draw
+            else f"{self.game.winner.get_name()} wins!"
+        )
 
-        # Render title
         self._draw_centered_menu_text(
             winner_text, y_pos=SCREEN_MIDDLE_Y_POS - 100, font=TITLE_FONT
         )
 
-        # Render details
+        final_points_comparison = (
+            f"{self.game.winner.get_score()} VS {self.game.loser.get_score()} points"
+        )
+
         self._draw_centered_menu_text(
-            detail_text,
+            final_points_comparison,
             y_pos=SCREEN_MIDDLE_Y_POS - 50,
             font=SUBTITLE_FONT,
         )
 
-        # Render reset button
         self.reset_button.toggle_colour_on_hover(self.mouse_pos)
         self.reset_button.draw(screen)
 
     def ui_loop(self):
         clock = pygame.time.Clock()
+        self.game.reset_game()
         while True:
             should_continue_playing = self.game.play_turn()
             if not should_continue_playing:
