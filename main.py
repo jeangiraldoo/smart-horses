@@ -72,11 +72,11 @@ class GUI:
         text_rect = text_surface.get_rect(center=pos)
         screen.blit(text_surface, text_rect)
 
-    def _draw_centered_text(
-        self, text, x, y, font=TITLE_FONT, colour=COLOURS.get("BLACK")
+    def _draw_centered_menu_text(
+        self, text, y_pos, font=TITLE_FONT, colour=COLOURS.get("BLACK")
     ):
         surface = font.render(text, True, colour)
-        rect = surface.get_rect(center=(x, y))
+        rect = surface.get_rect(center=(SCREEN_MIDDLE_X_POS, y_pos))
         screen.blit(surface, rect)
 
     def display_game_title(self):
@@ -84,17 +84,15 @@ class GUI:
             "RED_WOOD" if not self.current_menu_title_colour == "RED_WOOD" else "WOOD"
         )
 
-        self._draw_centered_text(
+        self._draw_centered_menu_text(
             GAME_NAME,
-            SCREEN_MIDDLE_X_POS,
-            160,
+            y_pos=160,
             font=GAME_MENU_TITLE_FONT,
             colour=COLOURS.get(self.current_menu_title_colour),
         )
-        self._draw_centered_text(
+        self._draw_centered_menu_text(
             "Choose your difficulty:",
-            SCREEN_MIDDLE_X_POS,
-            210,
+            y_pos=210,
             font=GAME_MENU_TITLE_FONT,
         )
 
@@ -172,15 +170,14 @@ class GUI:
             detail_text = f"with {self.game.winner.get_score()} points vs {loser.get_score()} of {loser.get_name()} horses"
 
         # Render title
-        self._draw_centered_text(
-            winner_text, SCREEN_MIDDLE_X_POS, SCREEN_MIDDLE_Y_POS - 100, font=TITLE_FONT
+        self._draw_centered_menu_text(
+            winner_text, y_pos=SCREEN_MIDDLE_Y_POS - 100, font=TITLE_FONT
         )
 
         # Render details
-        self._draw_centered_text(
+        self._draw_centered_menu_text(
             detail_text,
-            SCREEN_MIDDLE_X_POS,
-            SCREEN_MIDDLE_Y_POS - 50,
+            y_pos=SCREEN_MIDDLE_Y_POS - 50,
             font=SUBTITLE_FONT,
         )
 
