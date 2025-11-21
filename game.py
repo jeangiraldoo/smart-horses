@@ -301,6 +301,12 @@ class Game:
         alert_test = PANEL_INFO_FONT.render(f"Alert: {self.alert}", True, (255, 0, 0))
         self.screen.blit(alert_test, (panel_x + 20, 300))
 
+    def get_clicked_coordinates(self):
+        clicked_pos = pygame.mouse.get_pos()
+        x, y = clicked_pos[0] // MATRIX_CELL_SIZE, clicked_pos[1] // MATRIX_CELL_SIZE
+
+        return x, y
+
     def play_turn(self):
         self.draw_score_panel()
         pygame.display.flip()
@@ -317,13 +323,9 @@ class Game:
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                casilla = pygame.mouse.get_pos()
-                board_x, board_y = (
-                    casilla[0] // MATRIX_CELL_SIZE,
-                    casilla[1] // MATRIX_CELL_SIZE,
-                )
-                if board_x < MATRIX_SIZE and board_y < MATRIX_SIZE:
-                    self.move_horse(board_x, board_y)
+                x_pos, y_pos = self.get_clicked_coordinates()
+                if x_pos < MATRIX_SIZE and y_pos < MATRIX_SIZE:
+                    self.move_horse(x_pos, y_pos)
                     self.toggle_current_player()
 
         self.draw_score_panel()
