@@ -64,8 +64,8 @@ class Horse:
     def get_name(self):
         return self.name
 
-    def set_score(self, score):
-        self.score = score
+    def add_to_current_score(self, value):
+        self.score += value
 
     def set_position(self, x, y):
         self.x = x
@@ -148,9 +148,8 @@ class Game:
 
         if (new_x, new_y) in self.calculate_player_valid_moves():
             self.board[horse_pos[1]][horse_pos[0]] = 997
-            self.current_player.set_score(
-                self.current_player.get_score() + self.board[new_y][new_x]
-            )
+            self.current_player.add_to_current_score(self.board[new_y][new_x])
+
             self.current_player.set_position(new_x, new_y)
             self.board[new_y][new_x] = self.current_player.get_value()
             self.current_player = (
@@ -192,7 +191,8 @@ class Game:
     # GAME OVER
     def apply_penalty_if_needed(self):
         if not self.calculate_player_valid_moves():
-            self.current_player.set_score(self.current_player.get_score() - 4)
+            self.current_player.add_to_current_score(-4)
+            # self.current_player.set_score(self.current_player.get_score() - 4)
             self.refesh_panel(f"{self.current_player.get_name()} -4 point")
             return True
         return False
