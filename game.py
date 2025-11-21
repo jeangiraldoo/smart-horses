@@ -146,21 +146,19 @@ class Game:
     def move_horse(self, new_x, new_y):
         horse_pos = self.current_player.get_position()
 
-        if (new_x, new_y) in self.calculate_player_valid_moves():
-            self.board[horse_pos[1]][horse_pos[0]] = 997
-            self.current_player.add_to_current_score(self.board[new_y][new_x])
-
-            self.current_player.set_position(new_x, new_y)
-            self.board[new_y][new_x] = self.current_player.get_value()
-            self.current_player = (
-                self.player_horse
-                if self.current_player == self.ai_horse
-                else self.ai_horse
-            )
-            self.alert = ""
-
-        else:
+        if not (new_x, new_y) in self.calculate_player_valid_moves():
             self.alert = "Movimiento inválido"
+            return
+
+        self.board[horse_pos[1]][horse_pos[0]] = 997
+        self.current_player.add_to_current_score(self.board[new_y][new_x])
+
+        self.current_player.set_position(new_x, new_y)
+        self.board[new_y][new_x] = self.current_player.get_value()
+        self.current_player = (
+            self.player_horse if self.current_player == self.ai_horse else self.ai_horse
+        )
+        self.alert = ""
 
     # MINIMAX
     def minimax(self, depth, is_maximizing):
