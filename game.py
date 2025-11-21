@@ -12,13 +12,6 @@ IMAGE_SCALE = (IMAGE_DIMENSIONS, IMAGE_DIMENSIONS)
 # MATRIX_SIZE = 8
 # MATRIX_CELL_SIZE = 90
 
-WHITE_CELL = pygame.transform.scale(
-    pygame.image.load("assets/white_cell.png"), IMAGE_SCALE
-)
-BLACK_CELL = pygame.transform.scale(
-    pygame.image.load("assets/black_cell.png"), IMAGE_SCALE
-)
-
 
 class Horse:
     class AvailableMovesInL(Enum):
