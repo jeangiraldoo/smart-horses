@@ -94,9 +94,12 @@ class GUI:
     def _highlight_current_player(self, cell_rect):
         pygame.draw.ellipse(screen, COLOURS["GOLD"], cell_rect.inflate(10, 10), 6)
 
+    def is_dark_square(self, x, y):
+        return (x + y) % 2 == 0
+
     def _draw_point_on_cell(self, cell_rect, point_value, x, y):
         point_colour = (
-            COLOURS.get("BLACK") if (x + y) % 2 == 0 else COLOURS.get("WHITE")
+            COLOURS.get("BLACK") if self.is_dark_square(x, y) else COLOURS.get("WHITE")
         )
 
         font = pygame.font.SysFont(None, 40)
@@ -116,7 +119,7 @@ class GUI:
 
                 screen.blit(
                     pygame.transform.scale(
-                        WHITE_CELL if (x + y) % 2 == 0 else BLACK_CELL,
+                        WHITE_CELL if self.is_dark_square(x, y) else BLACK_CELL,
                         (MATRIX_CELL_SIZE, MATRIX_CELL_SIZE),
                     ),
                     cell_rect.topleft,
