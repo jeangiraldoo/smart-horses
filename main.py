@@ -53,12 +53,6 @@ class GUI:
 
         self.mouse_pos = pygame.mouse.get_pos()
 
-    def draw_text_on_board(self, text, pos, color=(2, 2, 2)):
-        font = pygame.font.SysFont(None, 40)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(center=pos)
-        screen.blit(text_surface, text_rect)
-
     def _draw_centered_menu_text(
         self, text, y_pos, font=TITLE_FONT, colour=COLOURS.get("BLACK")
     ):
@@ -101,11 +95,14 @@ class GUI:
         pygame.draw.ellipse(screen, COLOURS["GOLD"], cell_rect.inflate(10, 10), 6)
 
     def _draw_point_on_cell(self, cell_rect, point_value, x, y):
-        self.draw_text_on_board(
-            str(point_value),
-            cell_rect.center,
-            (0, 0, 0) if (x + y) % 2 == 0 else (255, 255, 255),
+        point_colour = (
+            COLOURS.get("BLACK") if (x + y) % 2 == 0 else COLOURS.get("WHITE")
         )
+
+        font = pygame.font.SysFont(None, 40)
+        text_surface = font.render(str(point_value), True, point_colour)
+        text_rect = text_surface.get_rect(center=cell_rect.center)
+        screen.blit(text_surface, text_rect)
 
     def draw_map(self, available_moves):
         for y, row in enumerate[list[int]](self.game.board):
