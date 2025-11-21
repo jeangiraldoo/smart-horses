@@ -19,18 +19,32 @@ BLACK_CELL = pygame.transform.scale(
     pygame.image.load("assets/black_cell.png"), IMAGE_SCALE
 )
 
-CELLS = {
-    # Destroyer
-    997: pygame.transform.scale(pygame.image.load("assets/destroyed.png"), IMAGE_SCALE),
-    # White knight
-    999: pygame.transform.scale(
-        pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
-    ),
-    # Black knight
-    998: pygame.transform.scale(
-        pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
-    ),
-}
+
+class SpecialCells(Enum):
+    DESTROYED = (
+        997,
+        pygame.transform.scale(pygame.image.load("assets/destroyed.png"), IMAGE_SCALE),
+    )
+    WHITE_PIECE = (
+        999,
+        pygame.transform.scale(
+            pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
+        ),
+    )
+    BLACK_PIECE = (
+        998,
+        pygame.transform.scale(
+            pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
+        ),
+    )
+
+    @property
+    def id(self):
+        return self.value[0]
+
+    @property
+    def image(self):
+        return self.value[1]
 
 
 class Horse:
@@ -81,8 +95,9 @@ class Game:
         self.POSSIBLE_POINTS = [-1, -3, -4, -5, -10, 1, 3, 4, 5, 10]
         self.difficulty = ""
 
-        possible_board_elements = []
-        possible_board_elements.extend(CELLS.keys())
+        possible_board_elements = [
+            cell.id for cell in SpecialCells if cell is not SpecialCells.DESTROYED
+        ]
         possible_board_elements.extend(self.POSSIBLE_POINTS)
 
         self.POSSIBLE_BOARD_ELEMENTS = possible_board_elements
@@ -117,6 +132,8 @@ class Game:
 
         for i, (x, y) in enumerate(chosen_positions):
             board[x][y] = self.POSSIBLE_BOARD_ELEMENTS[i]
+
+        print(board)
 
         return board
 
