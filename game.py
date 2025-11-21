@@ -169,9 +169,11 @@ class Game:
 
         for x, y in self.current_player.LEGAL_MOVES:
             new_x, new_y = horse_x + x, horse_y + y
-            if 0 <= new_x < MATRIX_SIZE and 0 <= new_y < MATRIX_SIZE:
-                if self.board[new_y][new_x] not in self.ILLEGAL_CELLS_TO_GO:
-                    valid_moves.append((new_x, new_y))
+            if (
+                self.is_coordinate_valid(new_x, new_y)
+                and self.board[new_y][new_x] not in self.ILLEGAL_CELLS_TO_GO
+            ):
+                valid_moves.append((new_x, new_y))
 
         return valid_moves
 
@@ -307,6 +309,15 @@ class Game:
 
         return x, y
 
+    def is_coordinate_valid(self, x, y):
+        def is_range_valid(value):
+            return 0 <= value < MATRIX_SIZE
+
+        if not (is_range_valid(x) and is_range_valid(y)):
+            return False
+
+        return True
+
     def play_turn(self):
         self.draw_score_panel()
         pygame.display.flip()
@@ -324,7 +335,7 @@ class Game:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x_pos, y_pos = self.get_clicked_coordinates()
-                if x_pos < MATRIX_SIZE and y_pos < MATRIX_SIZE:
+                if self.is_coordinate_valid(x_pos, y_pos):
                     self.move_horse(x_pos, y_pos)
                     self.toggle_current_player()
 
