@@ -175,6 +175,11 @@ class Game:
 
         return valid_moves
 
+    def toggle_current_player(self):
+        self.current_player = (
+            self.player_horse if self.current_player == self.ai_horse else self.ai_horse
+        )
+
     def move_horse(self, new_x, new_y):
         horse_pos = self.current_player.get_position()
 
@@ -187,9 +192,6 @@ class Game:
 
         self.current_player.set_position(new_x, new_y)
         self.board[new_y][new_x] = self.current_player.get_value()
-        self.current_player = (
-            self.player_horse if self.current_player == self.ai_horse else self.ai_horse
-        )
         self.alert = ""
 
     # MINIMAX
@@ -217,6 +219,7 @@ class Game:
 
         self.move_horse(*calculate_best_move)
         self.alert = "AI moved at" + str(self.find_horse_positions())
+        self.toggle_current_player()
 
     # GAME OVER
     def apply_penalty_if_needed(self):
@@ -321,6 +324,7 @@ class Game:
                 )
                 if board_x < MATRIX_SIZE and board_y < MATRIX_SIZE:
                     self.move_horse(board_x, board_y)
+                    self.toggle_current_player()
 
         self.draw_score_panel()
         pygame.display.flip()
