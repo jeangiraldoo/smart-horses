@@ -33,19 +33,6 @@ BLACK_CELL = pygame.transform.scale(
     pygame.image.load("assets/black_cell.png"), IMAGE_SCALE
 )
 
-CELLS = {
-    # Destroyer
-    997: pygame.transform.scale(pygame.image.load("assets/destroyed.png"), IMAGE_SCALE),
-    # White knight
-    999: pygame.transform.scale(
-        pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
-    ),
-    # Black knight
-    998: pygame.transform.scale(
-        pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
-    ),
-}
-
 
 class GUI:
     class Modes(Enum):
@@ -140,18 +127,14 @@ class GUI:
 
                 if (x, y) in available_moves:
                     self._highlight_cell(cell_rect)
-                else:
-                    if image := CELLS.get(cell, CELLS.get(0)):
-                        self._draw_image_on_cell(cell_rect, image)
+                elif (
+                    special_cell := self.game.ID_TO_CELL.get(cell)
+                ) and special_cell.image:
+                    self._draw_image_on_cell(cell_rect, special_cell.image)
 
                 if cell == self.game.current_player.value:
                     self._highlight_current_player(cell_rect)
-                elif isinstance(cell, int) and cell not in [
-                    997,
-                    999,
-                    998,
-                    0,
-                ]:
+                elif isinstance(cell, int) and cell not in self.game.SPECIAL_CELLS:
                     self._draw_point_on_cell(cell_rect, cell, x, y)
 
     def display_winner_screen(self):

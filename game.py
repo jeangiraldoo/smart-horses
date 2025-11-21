@@ -20,33 +20,6 @@ BLACK_CELL = pygame.transform.scale(
 )
 
 
-class SpecialCells(Enum):
-    DESTROYED = (
-        997,
-        pygame.transform.scale(pygame.image.load("assets/destroyed.png"), IMAGE_SCALE),
-    )
-    WHITE_PIECE = (
-        999,
-        pygame.transform.scale(
-            pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
-        ),
-    )
-    BLACK_PIECE = (
-        998,
-        pygame.transform.scale(
-            pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
-        ),
-    )
-
-    @property
-    def id(self):
-        return self.value[0]
-
-    @property
-    def image(self):
-        return self.value[1]
-
-
 class Horse:
     class AvailableMovesInL(Enum):
         ONE_RIGHT_TWO_UP = (1, -2)
@@ -90,13 +63,51 @@ class Horse:
 
 
 class Game:
+    class SpecialCells(Enum):
+        EMPTY = (0, None)
+        DESTROYED = (
+            997,
+            pygame.transform.scale(
+                pygame.image.load("assets/destroyed.png"), IMAGE_SCALE
+            ),
+        )
+        WHITE_PIECE = (
+            999,
+            pygame.transform.scale(
+                pygame.image.load("assets/knight/white_wobg.png"), IMAGE_SCALE
+            ),
+        )
+        BLACK_PIECE = (
+            998,
+            pygame.transform.scale(
+                pygame.image.load("assets/knight/black_wobg.png"), IMAGE_SCALE
+            ),
+        )
+
+        @property
+        def id(self):
+            return self.value[0]
+
+        @property
+        def image(self):
+            return self.value[1]
+
     def __init__(self, screen):
         self.screen = screen
         self.POSSIBLE_POINTS = [-1, -3, -4, -5, -10, 1, 3, 4, 5, 10]
         self.difficulty = ""
+        self.ILLEGAL_CELLS_TO_GO = [
+            self.SpecialCells.WHITE_PIECE.id,
+            self.SpecialCells.BLACK_PIECE.id,
+            self.SpecialCells.DESTROYED.id,
+        ]
+        self.SPECIAL_CELLS = [cell.id for cell in self.SpecialCells]
+        self.ID_TO_CELL = {cell.id: cell for cell in self.SpecialCells}
 
         possible_board_elements = [
-            cell.id for cell in SpecialCells if cell is not SpecialCells.DESTROYED
+            cell_id
+            for cell_id in self.SPECIAL_CELLS
+            if cell_id is not self.SpecialCells.DESTROYED.id
         ]
         possible_board_elements.extend(self.POSSIBLE_POINTS)
 
@@ -104,8 +115,16 @@ class Game:
 
         self.board = self.generate_random_matrix()
 
-        self.ai_horse = Horse(*self.find_horse_positions(999), 999, "WHITE")
-        self.player_horse = Horse(*self.find_horse_positions(998), 998, "BLACK")
+        self.ai_horse = Horse(
+            *self.find_horse_positions(self.SpecialCells.WHITE_PIECE.id),
+            self.SpecialCells.WHITE_PIECE.id,
+            "WHITE",
+        )
+        self.player_horse = Horse(
+            *self.find_horse_positions(self.SpecialCells.BLACK_PIECE.id),
+            self.SpecialCells.BLACK_PIECE.id,
+            "BLACK",
+        )
         self.current_player = self.ai_horse
 
         # Essentials
@@ -128,7 +147,10 @@ class Game:
             POSSIBLE_POSITIONS, len(self.POSSIBLE_BOARD_ELEMENTS)
         )
 
-        board = [[0 for _ in range(MATRIX_SIZE)] for _ in range(MATRIX_SIZE)]
+        board = [
+            [self.SpecialCells.EMPTY.id for _ in range(MATRIX_SIZE)]
+            for _ in range(MATRIX_SIZE)
+        ]
 
         for i, (x, y) in enumerate(chosen_positions):
             board[x][y] = self.POSSIBLE_BOARD_ELEMENTS[i]
@@ -155,7 +177,7 @@ class Game:
         for x, y in self.current_player.LEGAL_MOVES:
             new_x, new_y = horse_x + x, horse_y + y
             if 0 <= new_x < MATRIX_SIZE and 0 <= new_y < MATRIX_SIZE:
-                if self.board[new_y][new_x] not in [997, 998, 999]:
+                if self.board[new_y][new_x] not in self.ILLEGAL_CELLS_TO_GO:
                     valid_moves.append((new_x, new_y))
 
         return valid_moves
@@ -167,7 +189,7 @@ class Game:
             self.alert = "Movimiento inválido"
             return
 
-        self.board[horse_pos[1]][horse_pos[0]] = 997
+        self.board[horse_pos[1]][horse_pos[0]] = self.SpecialCells.DESTROYED.id
         self.current_player.add_to_current_score(self.board[new_y][new_x])
 
         self.current_player.set_position(new_x, new_y)
@@ -207,7 +229,6 @@ class Game:
     def apply_penalty_if_needed(self):
         if not self.calculate_player_valid_moves():
             self.current_player.add_to_current_score(-4)
-            # self.current_player.set_score(self.current_player.get_score() - 4)
             self.refesh_panel(f"{self.current_player.get_name()} -4 point")
             return True
         return False
