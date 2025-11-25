@@ -79,17 +79,21 @@ def draw_map(screen, random_matrix):
 
 
 def get_cell_points(board, pos):
-    """Devuelve los puntos de una celda si los hay y limpia la casilla"""
     x, y = pos
     cell_value = board[y][x]
-    if isinstance(cell_value, int):  # Es una celda vacia o normal
+
+    # Evitar sumar puntos si la celda pertenece a los caballos
+    if cell_value in (999, 998):
         return 0
-    try:
-        points = int(cell_value)
-        board[y][x] = 0  # Se limpia la casilla
+
+    # Si la celda contiene puntos positivos o negativos
+    if cell_value in range(-10, 11) and cell_value != 0:
+        points = cell_value
+        board[y][x] = 0  # Limpia la celda despues de recoger los puntos
         return points
-    except ValueError:
-        return 0
+
+    # Cualquier otro caso 
+    return 0
 
 
 def draw_score_panel(screen, font, scores, screen_width, board_width):
