@@ -54,6 +54,11 @@ class Horse:
     def __str__(self):
         return f"{self.name} at ({self.x}, {self.y}) with score {self.score}"
 
+    def copy(self):
+        new_horse = Horse(self.x, self.y, self.value, self.name)
+        new_horse.score = self.score
+        return new_horse
+
 
 class Game:
     class SpecialCells(Enum):
@@ -177,6 +182,20 @@ class Game:
 
         return valid_moves
 
+    def get_valid_moves(self, board, horse):
+        valid_moves = []
+        horse_x, horse_y = horse.get_position()
+
+        for x, y in horse.LEGAL_MOVES:
+            new_x, new_y = horse_x + x, horse_y + y
+            if (
+                self.is_coordinate_valid(new_x, new_y)
+                and board[new_y][new_x] not in self.ILLEGAL_CELLS_TO_GO
+            ):
+                valid_moves.append((new_x, new_y))
+
+        return valid_moves
+
     def toggle_current_player(self):
         self.current_player = (
             self.player_horse if self.current_player == self.ai_horse else self.ai_horse
@@ -197,30 +216,151 @@ class Game:
         self.alert = ""
 
     # MINIMAX
-    def minimax(self, depth, is_maximizing):
-        options = self.calculate_player_valid_moves()
-        return options[0]
+    def evaluate(self, board, ai_horse, player_horse):
+        ai_moves = self.get_valid_moves(board, ai_horse)
+        player_moves = self.get_valid_moves(board, player_horse)
+
+        ai_score = ai_horse.get_score()
+        player_score = player_horse.get_score()
+
+        # Penalty rule: if a player has no moves but opponent does, -4 points
+        if not ai_moves and player_moves:
+            ai_score -= 4
+        elif not player_moves and ai_moves:
+            player_score -= 4
+
+        score_diff = ai_score - player_score
+        mobility_diff = (len(ai_moves) - len(player_moves)) * 0.1
+
+        return score_diff + mobility_diff
+
+    def minimax(self, board, depth, maximizing_player, ai_horse, player_horse):
+        ai_moves = self.get_valid_moves(board, ai_horse)
+        player_moves = self.get_valid_moves(board, player_horse)
+
+        # Terminal conditions: depth 0 or game over (no moves for either)
+        if depth == 0 or (not ai_moves and not player_moves):
+            return None, self.evaluate(board, ai_horse, player_horse)
+
+        if maximizing_player:
+            # AI Turn
+            if not ai_moves:
+                # Pass turn if no moves, but check if game is over (handled above if both no moves)
+                # If only AI has no moves, it's effectively a pass, but we recurse with same board
+                # However, the rules say "En cada turno el jugador debe mover su caballo, a no ser que no tengo movimientos posibles."
+                # If no moves, we skip turn.
+                return self.minimax(board, depth - 1, False, ai_horse, player_horse)
+            
+            max_eval = float("-inf")
+            best_move = ai_moves[0] # Default
+
+            for move in ai_moves:
+                # Clone state
+                new_board = [row[:] for row in board]
+                new_ai_horse = ai_horse.copy()
+                
+                # Apply move
+                old_x, old_y = new_ai_horse.get_position()
+                new_x, new_y = move
+                
+                # Logic from move_horse: destroy old, add score, set new pos, set new val
+                new_board[old_y][old_x] = self.SpecialCells.DESTROYED.id
+                new_ai_horse.add_to_current_score(new_board[new_y][new_x])
+                new_ai_horse.set_position(new_x, new_y)
+                new_board[new_y][new_x] = new_ai_horse.get_value()
+
+                # Recurse
+                _, eval = self.minimax(new_board, depth - 1, False, new_ai_horse, player_horse)
+                
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+            
+            return best_move, max_eval
+
+        else:
+            # Player Turn
+            if not player_moves:
+                return self.minimax(board, depth - 1, True, ai_horse, player_horse)
+
+            min_eval = float("inf")
+            best_move = player_moves[0]
+
+            for move in player_moves:
+                # Clone state
+                new_board = [row[:] for row in board]
+                new_player_horse = player_horse.copy()
+
+                # Apply move
+                old_x, old_y = new_player_horse.get_position()
+                new_x, new_y = move
+
+                new_board[old_y][old_x] = self.SpecialCells.DESTROYED.id
+                new_player_horse.add_to_current_score(new_board[new_y][new_x])
+                new_player_horse.set_position(new_x, new_y)
+                new_board[new_y][new_x] = new_player_horse.get_value()
+
+                # Recurse
+                _, eval = self.minimax(new_board, depth - 1, True, ai_horse, new_player_horse)
+
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+            
+            return best_move, min_eval
 
     def play_the_ia(self):
         self.refesh_panel("La ia esta pensando")
-        calculate_best_move = self.minimax(3, True)
-        pygame.time.wait(2000)  # simulate the time the AI takes to think
+        
+        depth = 2
+        if self.difficulty == "Amateur":
+            depth = 4
+        elif self.difficulty == "Expert":
+            depth = 6
+        
+        # We need to pass copies to not mutate the actual game state during search
+        # But wait, the root of minimax uses the current state.
+        # The recursive calls use copies.
+        # We pass the CURRENT board and horses to start.
+        # The minimax function will clone them for its children.
+        
+        best_move, _ = self.minimax(self.board, depth, True, self.ai_horse, self.player_horse)
+        
+        # If best_move is None (no moves possible), we should probably handle it.
+        # But calculate_player_valid_moves() check in play_turn handles the skip turn logic?
+        # Actually, play_the_ia is only called if current_player == ai_horse.
+        # And play_turn checks game over.
+        # If AI has no moves, play_the_ia might fail if we don't handle None.
+        
+        if best_move is None:
+             # This happens if AI has no moves.
+             # In the game loop, we should have checked if game is over.
+             # If game is not over, but AI has no moves, we just toggle player?
+             # But apply_penalty_if_needed checks if valid moves exist.
+             # If apply_penalty_if_needed returns True, it means no moves.
+             # So play_the_ia shouldn't be called if no moves?
+             # Let's check play_turn.
+             pass
+        else:
+            calculate_best_move = best_move
+            pygame.time.wait(1000)  # simulate the time the AI takes to think
 
-        pygame.draw.rect(
-            self.screen,
-            COLOURS.get("GREEN"),
-            pygame.Rect(
-                calculate_best_move[0] * MATRIX_CELL_SIZE,
-                calculate_best_move[1] * MATRIX_CELL_SIZE,
-                MATRIX_CELL_SIZE,
-                MATRIX_CELL_SIZE,
-            ),
-        )
-        self.refesh_panel(f"La ia decide {calculate_best_move}")
-        pygame.time.wait(1000)  # give time for the player to see the AI move
+            pygame.draw.rect(
+                self.screen,
+                COLOURS.get("GREEN"),
+                pygame.Rect(
+                    calculate_best_move[0] * MATRIX_CELL_SIZE,
+                    calculate_best_move[1] * MATRIX_CELL_SIZE,
+                    MATRIX_CELL_SIZE,
+                    MATRIX_CELL_SIZE,
+                ),
+            )
+            self.refesh_panel(f"La ia decide {calculate_best_move}")
+            pygame.time.wait(1000)  # give time for the player to see the AI move
 
-        self.move_horse(*calculate_best_move)
-        self.alert = "AI moved at" + str(self.find_horse_positions())
+            self.move_horse(*calculate_best_move)
+            self.alert = "AI moved at" + str(self.find_horse_positions())
+        
         self.toggle_current_player()
 
     # GAME OVER
