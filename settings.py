@@ -1,0 +1,15 @@
+import pygame
+
+pygame.init()
+
+PANEL_INFO_FONT = pygame.font.SysFont("Arial", 24)
+
+
+MATRIX_SIZE = 8
+MATRIX_CELL_SIZE = 90
+
+POSSIBLE_POSITIONS = [(x, y) for x in range(MATRIX_SIZE) for y in range(MATRIX_SIZE)]
+
+SIDEBAR_WIDTH = 350
+SCREEN_WIDTH = MATRIX_CELL_SIZE * MATRIX_SIZE + SIDEBAR_WIDTH
+SCREEN_HEIGHT = MATRIX_CELL_SIZE * MATRIX_SIZE
