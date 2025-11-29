@@ -211,6 +211,7 @@ class Game:
             return
 
         self.board[horse_pos[1]][horse_pos[0]] = self.SpecialCells.DESTROYED.id
+        print("move horse increment: " + self.current_player.get_name())
         self.current_player.add_to_current_score(self.board[new_y][new_x])
 
         self.current_player.set_position(new_x, new_y)
@@ -474,13 +475,14 @@ class Game:
             len(self.get_valid_moves(self.board, self.ai_horse)) == 0
             and len(self.get_valid_moves(self.board, self.player_horse)) == 0
         ):
-            print("game ends")
+            self.apply_penalty_if_needed()
+            # print("game ends")
             self.calculate_winner()
             pygame.time.wait(2000)
             return False
-        print(f"AI: {len(self.get_valid_moves(self.board, self.ai_horse))}")
-        print(f"AI: {self.get_valid_moves(self.board, self.ai_horse)}")
-        print(f"Human: {len(self.get_valid_moves(self.board, self.player_horse))}")
+        # print(f"AI: {len(self.get_valid_moves(self.board, self.ai_horse))}")
+        # print(f"AI: {self.get_valid_moves(self.board, self.ai_horse)}")
+        # print(f"Human: {len(self.get_valid_moves(self.board, self.player_horse))}")
 
         if self.apply_penalty_if_needed():
             self.toggle_current_player()
