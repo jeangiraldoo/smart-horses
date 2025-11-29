@@ -189,7 +189,11 @@ class GUI:
                             if button.is_hovered(self.mouse_pos):
                                 self.mode = self.Modes.PLAYING
                                 self.game.set_difficulty(button.text)
-                                self.draw_map(self.game.calculate_player_valid_moves())
+                                self.draw_map(
+                                    self.game.calculate_player_valid_moves(
+                                        self.game.current_player
+                                    )
+                                )
                                 self.ui_loop()
 
                     elif self.mode == self.Modes.WINNER:
